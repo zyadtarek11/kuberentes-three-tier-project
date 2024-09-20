@@ -3,28 +3,48 @@ kind: Deployment
 metadata:
   name: backend-deployment
   namespace: webapp
+  labels:
+    app: backend
 spec:
-  replicas: 2
   selector:
     matchLabels:
       app: backend
+  replicas: 2
   template:
     metadata:
       labels:
         app: backend
     spec:
+      volumes:
+      - name: db-password
+        secret:
+          secretName: db-secret
+      - name: pre-install
+        emptyDir: {}
+      initContainers:
+      - name: pre-install
+        image: busybox
+        command: ['sh', '-c', 'cat /db-secret/db-password >> /run/secrets/db-password']
+        volumeMounts:
+        - name: db-password
+          mountPath: "/db-secret"
+        - name: pre-install
+          mountPath: "/run/secrets"
       containers:
       - name: backend
-        image: zyadtarek/backend:latest
+        image: mohamedmaher77/backend:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
         resources:
-          limits:
-            memory: "150Mi"
-            cpu: "150m"
           requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
             memory: "128Mi"
-            cpu: "100m"
-        envFrom:
-        - configMapRef:
-            name: backend-env-config
+            cpu: "500m"
+        volumeMounts:
+        - name: pre-install
+          mountPath: "/run/secrets"
+        - name: db-password
+          mountPath: "/db-secret"

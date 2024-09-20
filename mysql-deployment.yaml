@@ -20,7 +20,10 @@ spec:
         - containerPort: 3306
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: "zyadzizo2003"
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: db-password
         - name: MYSQL_DATABASE
           value: "example" # This will create the database on startup
         volumeMounts:
@@ -28,11 +31,11 @@ spec:
           mountPath: /docker-entrypoint-initdb.d # MySQL will execute .sql files in this directory
         resources:
           limits:
-            memory: "250Mi" # Limit the memory to 250Mi
-            cpu: "250m" # Limit the CPU to 250m
+            memory: "250Mi"
+            cpu: "250m"
           requests:
-            memory: "128Mi" # Request at least 128Mi of memory
-            cpu: "100m" # Request at least 100m of CPU
+            memory: "128Mi"
+            cpu: "100m"
       volumes:
       - name: mysql-init
         configMap:
