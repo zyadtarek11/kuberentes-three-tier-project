@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxy-service
+  namespace: webapp
+spec:
+  type: NodePort
+  selector:
+    proxy-service: nginx-proxy
+  ports:
+  - port: 443 # The port the service listens on
+    targetPort: 443 # The port on the Pod to forward to
+    nodePort: 30001

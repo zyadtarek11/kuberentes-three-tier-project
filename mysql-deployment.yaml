@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  namespace: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:latest
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "zyadzizo2003"
+        - name: MYSQL_DATABASE
+          value: "example" # This will create the database on startup
+        volumeMounts:
+        - name: mysql-init
+          mountPath: /docker-entrypoint-initdb.d # MySQL will execute .sql files in this directory
+        resources:
+          limits:
+            memory: "250Mi" # Limit the memory to 250Mi
+            cpu: "250m" # Limit the CPU to 250m
+          requests:
+            memory: "128Mi" # Request at least 128Mi of memory
+            cpu: "100m" # Request at least 100m of CPU
+      volumes:
+      - name: mysql-init
+        configMap:
+          name: mysql-init-config # ConfigMap that holds your init.sql file
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init-config
+  namespace: webapp
+data:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS example;
+    USE example;

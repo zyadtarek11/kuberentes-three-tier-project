@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxy-deployment
+  namespace: webapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      proxy-service: nginx-proxy
+  template:
+    metadata:
+      labels:
+        proxy-service: nginx-proxy
+    spec:
+      containers:
+      - name: nginx-proxy
+        image: zyadtarek/nginx-proxy:latest
+        resources:
+          limits:
+            memory: "150Mi"
+            cpu: "150m"
+          requests:
+            memory: "100Mi"
+            cpu: "100m"
+        ports:
+        - containerPort: 443
